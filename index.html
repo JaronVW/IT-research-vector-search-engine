@@ -9,7 +9,34 @@
 </head>
 
 <body>
-    <script src="https://unpkg.com/petite-vue" defer init></script>
+    <script type="module">
+        import { createApp } from 'https://unpkg.com/petite-vue?module'
+        import axios from 'https://cdn.skypack.dev/axios';
+
+        function Search(props) {
+            return {
+                query: props.initialQuery,
+                async execute() {
+                    console.log(this.query)
+                    const { data } = await axios.get(
+                        "http://localhost:3000/"
+                    );
+                    console.log(data)
+                }
+            }
+        }
+
+        createApp({
+            Search
+        }).mount()
+    </script>
+
+    <div v-scope="Search({ initialQuery: '' })">
+        <input type="text" name="" id="" v-model="query">
+        <button @click="execute">increment</button>
+    </div>
+
+
 </body>
 
 </html>
