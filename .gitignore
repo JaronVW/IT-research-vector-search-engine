@@ -1,3 +1,5 @@
 node_modules
 .env
 volumes/
+sqlite/*
+!sqlite/db.sql
