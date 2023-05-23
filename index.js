@@ -43,6 +43,7 @@ app.get('/milvus', async (req, res) => {
             params: JSON.stringify({ nprobe: 10 }),
         }
     });
+    milvusClient.releaseCollection({ collection_name: "data" });
     res.send(result);
 });
 
