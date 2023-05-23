@@ -6,7 +6,7 @@ import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { DataType } from "@zilliz/milvus2-sdk-node";
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3333;
 const address = "localhost:19530" || process.env.MILVUS_ADDRESS;
 const username = "root" || process.env.MILVUS_USERNAME;
 const password = "Milvus" || process.env.MILVUS_PASSWORD;
@@ -25,9 +25,25 @@ app.get('/', (req, res) => {
 });
 
 app.get('/milvus', async (req, res) => {
-    milvusClient.showCollections().then((collections) => {
-        res.send({ collections });
+    await milvusClient.loadCollection({ collection_name: "data" });
+    const vectors = await milvusClient.query({
+        collection_name: "data",
+        expr: `data_name =="${req.query.searchQuery}"`,
+        output_fields: ["data_vectors"],
+    })
+    const result = await milvusClient.search({
+        collection_name: "data",
+        expr: "",
+        vectors: [vectors.data[0].data_vectors],
+        vector_type: 101,    // DataType.FloatVector
+        search_params: {
+            anns_field: "data_vectors",
+            topk: "2",
+            metric_type: "L2",
+            params: JSON.stringify({ nprobe: 10 }),
+        }
     });
+    res.send(result);
 });
 
 app.listen(PORT, async () => {
