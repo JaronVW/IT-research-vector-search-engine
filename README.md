@@ -17,8 +17,9 @@ a school project for my IT research class
     ```
 
  3. Import the included SQL file to create the tables and insert the data
+ 4. Import milvus.csv to import the sample data, this can be done using Attu UI: <https://github.com/zilliztech/attu>
 
- 4. Open the index.html file in your browser
+ 5. Open the index.html file in your browser
 
 ## How to use
 
