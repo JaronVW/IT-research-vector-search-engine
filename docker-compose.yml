@@ -46,13 +46,14 @@ services:
 
   psql-db:
     container_name: psql-db
-    image: postgres:13.4
+    image: postgres
     environment:
+      PGUSER: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
 networks:
   default:

@@ -4,28 +4,33 @@ import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import Client from "pg"
 
 
-const MPORT = 3333 || process.env.PORT;
+const MPORT = 3333 || process.env.MPORT;
 const Maddress = process.env.MILVUS_ADDRESS || "localhost:19530";
 const Musername = process.env.MILVUS_USERNAME || "root";
 const Mpassword = process.env.MILVUS_PASSWORD || "Milvus";
 const mssl = false;
 
-const PGPort = 5432 || process.env.PORT;
-const PGusername = process.env.MILVUS_USERNAME || "postgres";
-const PGpassword = process.env.MILVUS_PASSWORD || "postgres";
-const PGdatabase = process.env.MILVUS_DATABASE || "postgres";
-const PGhost = process.env.MILVUS_HOST || "localhost";
+const PGPort = 5433 || process.env.PGPort;
+const PGusername = process.env.PG_USERNAME || "postgres";
+const PGpassword = process.env.PG_PASSWORD || "postgres";
+const PGdatabase = process.env.PG_DATABASE || "postgres";
+const PGhost = process.env.PG_HOST || "localhost";
 
 const milvusClient = new MilvusClient(Maddress, mssl, Musername, Mpassword);
 milvusClient.connect();
 const db = new Client.Client({
-    username: PGusername,
+    user: PGusername,
     password: PGpassword,
     database: PGdatabase,
     host: PGhost,
     port: PGPort
 });
 
+
+db
+    .connect()
+    .then(() => console.log('Postgres connected'))
+    .catch((err) => console.error('connection error', err.stack))
 
 const app = express();
 app.use(cors())
@@ -79,6 +84,5 @@ async function getVectorData(searchQuery) {
 
 async function getRelData(searchQuery) {
     const res = await db.query("select 1");
-    console.log(res.rows);
     return res.rows;
 }
