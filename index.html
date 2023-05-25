@@ -17,9 +17,16 @@
             return {
                 query: props.initialQuery,
                 responseArray: [],
-                async execute() {
+                async vectorSearch() {
                     const { data } = await axios.get(
                         "http://localhost:3333/milvus", { params: { searchQuery: this.query } }
+                    );
+                    console.log(data)
+                    this.responseArray = data
+                },
+                async relSearch() {
+                    const { data } = await axios.get(
+                        "http://localhost:3333/postgres", { params: { searchQuery: this.query } }
                     );
                     console.log(data)
                     this.responseArray = data
@@ -34,7 +41,8 @@
 
     <div v-scope="Search({ initialQuery: '' })">
         <input type="text" name="" id="" v-model="query">
-        <button @click="execute">increment</button>
+        <button @click="vectorSearch">Search in vector db</button>
+        <button @click="relSearch">Search in relational db</button>
         <div v-for="response in responseArray" :key="response.id">
             <p>{{ response.word }}</p>
         </div>
