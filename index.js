@@ -1,19 +1,30 @@
 import express from 'express';
-
 import cors from 'cors';
-import sqlite3 from 'sqlite3';
 import { MilvusClient } from '@zilliz/milvus2-sdk-node';
+import Client from "pg"
 
 
-const PORT = process.env.PORT || 3333;
-const address = "localhost:19530" || process.env.MILVUS_ADDRESS;
-const username = "root" || process.env.MILVUS_USERNAME;
-const password = "Milvus" || process.env.MILVUS_PASSWORD;
-const ssl = false;
+const MPORT = 3333 || process.env.PORT;
+const Maddress = process.env.MILVUS_ADDRESS || "localhost:19530";
+const Musername = process.env.MILVUS_USERNAME || "root";
+const Mpassword = process.env.MILVUS_PASSWORD || "Milvus";
+const mssl = false;
 
-const milvusClient = new MilvusClient(address, ssl, username, password);
+const PGPort = 5432 || process.env.PORT;
+const PGusername = process.env.MILVUS_USERNAME || "postgres";
+const PGpassword = process.env.MILVUS_PASSWORD || "postgres";
+const PGdatabase = process.env.MILVUS_DATABASE || "postgres";
+const PGhost = process.env.MILVUS_HOST || "localhost";
+
+const milvusClient = new MilvusClient(Maddress, mssl, Musername, Mpassword);
 milvusClient.connect();
-const db = new sqlite3.Database('./sqlite/db.sqlite3');
+const db = new Client.Client({
+    username: PGusername,
+    password: PGpassword,
+    database: PGdatabase,
+    host: PGhost,
+    port: PGPort
+});
 
 
 const app = express();
@@ -27,8 +38,13 @@ app.get('/milvus', async (req, res) => {
     res.send(await getVectorData(req.query.searchQuery));
 });
 
-app.listen(PORT, async () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.get('/postgres', async (req, res) => {
+    const data = await getRelData(req.query.searchQuery)
+    res.send(data);
+});
+
+app.listen(MPORT, async () => {
+    console.log(`Server is running on http://localhost:${MPORT}`);
 });
 
 
@@ -62,11 +78,7 @@ async function getVectorData(searchQuery) {
 }
 
 async function getRelData(searchQuery) {
-    const statement = `SELECT * FROM data WHERE word = "${searchQuery} join related_data on data.id = related_data.id"`;
-    return new Promise((resolve, reject) => {
-        db.all(statement, [], (err, rows) => {
-            if (err) reject([]);
-            resolve(rows);
-        });
-    });
+    const res = await db.query("select 1");
+    console.log(res.rows);
+    return res.rows;
 }

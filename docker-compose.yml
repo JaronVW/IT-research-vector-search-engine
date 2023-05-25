@@ -44,6 +44,16 @@ services:
       - "etcd"
       - "minio"
 
+  psql-db:
+    container_name: psql-db
+    image: postgres:13.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+
 networks:
   default:
     name: milvus
