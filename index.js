@@ -4,19 +4,19 @@ import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import Client from "pg"
 
 
-const MPORT = 3333 || process.env.MPORT;
+const MPORT = process.env.MPORT || 3333;
 const Maddress = process.env.MILVUS_ADDRESS || "localhost:19530";
 const Musername = process.env.MILVUS_USERNAME || "root";
 const Mpassword = process.env.MILVUS_PASSWORD || "Milvus";
-const mssl = false;
+const Mssl = false;
 
-const PGPort = 5433 || process.env.PGPort;
+const PGPort = process.env.PGPort || 5433;
 const PGusername = process.env.PG_USERNAME || "postgres";
 const PGpassword = process.env.PG_PASSWORD || "postgres";
 const PGdatabase = process.env.PG_DATABASE || "postgres";
 const PGhost = process.env.PG_HOST || "localhost";
 
-const milvusClient = new MilvusClient(Maddress, mssl, Musername, Mpassword);
+const milvusClient = new MilvusClient(Maddress, Mssl, Musername, Mpassword);
 milvusClient.connect();
 const db = new Client.Client({
     user: PGusername,
