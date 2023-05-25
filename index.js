@@ -4,7 +4,7 @@ import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import Client from "pg"
 
 
-const MPORT = process.env.MPORT || 3333;
+const EXPRESSPORT = process.env.MPORT || 3333;
 const Maddress = process.env.MILVUS_ADDRESS || "localhost:19530";
 const Musername = process.env.MILVUS_USERNAME || "root";
 const Mpassword = process.env.MILVUS_PASSWORD || "Milvus";
@@ -36,7 +36,7 @@ const app = express();
 app.use(cors())
 
 app.get('/', (req, res) => {
-    res.send({ message: 'Hello World' });
+    res.send({ message: 'Test' });
 });
 
 app.get('/milvus', async (req, res) => {
@@ -44,18 +44,17 @@ app.get('/milvus', async (req, res) => {
 });
 
 app.get('/postgres', async (req, res) => {
-    const data = await getRelData(req.query.searchQuery)
-    res.send(data);
+    res.send(await getRelData(req.query.searchQuery));
 });
 
-app.listen(MPORT, async () => {
-    console.log(`Server is running on http://localhost:${MPORT}`);
+app.listen(EXPRESSPORT, async () => {
+    console.log(`Server is running on http://localhost:${EXPRESSPORT}`);
 });
 
 
 async function getVectorData(searchQuery) {
 
-    if (searchQuery == null) return {};
+    if (searchQuery == null) return [];
 
     await milvusClient.loadCollection({ collection_name: "data" });
     const vectorResult = await milvusClient.query({
@@ -63,7 +62,7 @@ async function getVectorData(searchQuery) {
         expr: `word =="${searchQuery}"`,
         output_fields: ["vector"],
     })
-    if (vectorResult.data.length == 0) return {};
+    if (vectorResult.data.length == 0) return [];
 
     const relatedResult = await milvusClient.search({
         collection_name: "data",
@@ -77,12 +76,18 @@ async function getVectorData(searchQuery) {
             params: JSON.stringify({ nprobe: 10 }),
         }
     });
-    return {
+    return [
         ...relatedResult.results
-    };
+    ];
 }
 
 async function getRelData(searchQuery) {
-    const res = await db.query("select 1");
-    return res.rows;
+    const text = "SELECT * FROM data WHERE word iLIKE $1;"
+    const values = [searchQuery];
+    try {
+        const res = await db.query(text, values)
+        return res.rows
+    } catch (err) {
+        return []
+    }
 }
