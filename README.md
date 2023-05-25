@@ -16,7 +16,9 @@ a school project for my IT research class
     node .
     ```
 
- 3. Open the index.html file in your browser
+ 3. Import the included SQL file to create the tables and insert the data
+
+ 4. Open the index.html file in your browser
 
 ## How to use
 
